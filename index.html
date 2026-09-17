@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teleprompter</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* EDITOR */
+        .editor {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        .editor h1 {
+            font-size: 24px;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 40px;
+            letter-spacing: -0.5px;
+        }
+
+        .editor label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 320px;
+            background: #111;
+            border: 1px solid #222;
+            color: #e0e0e0;
+            padding: 16px;
+            font-size: 14px;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            border-radius: 6px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #333;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            flex: 1;
+            height: 4px;
+            background: #222;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .control-value {
+            font-size: 13px;
+            color: #888;
+            min-width: 24px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* PERSONAJES */
+        .pjs-section {
+            margin-top: 32px;
+        }
+
+        .pjs-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .pj-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: #161616;
+            border: 1px solid #222;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .pj-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .pj-tag input[type="color"] {
+            width: 0;
+            height: 0;
+            padding: 0;
+            border: none;
+            opacity: 0;
+            position: absolute;
+        }
+
+        .pj-tag label {
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .pj-count {
+            color: #555;
+            font-size: 11px;
+        }
+
+        .empty-msg {
+            font-size: 13px;
+            color: #444;
+            padding: 20px 0;
+        }
+
+        /* BOTONES */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-primary {
+            background: #fff;
+            color: #000;
+        }
+
+        .btn-primary:hover { background: #e0e0e0; }
+        .btn-primary:disabled { background: #222; color: #555; cursor: not-allowed; }
+
+        .btn-secondary {
+            background: #161616;
+            color: #888;
+            border: 1px solid #222;
+        }
+
+        .btn-secondary:hover { background: #1a1a1a; color: #aaa; }
+
+        /* TELEPROMPTER */
+        .tp {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000;
+        }
+
+        .tp.active { display: block; }
+
+        .tp-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+            z-index: 10;
+        }
+
+        .tp-btn {
+            background: none;
+            border: 1px solid #333;
+            color: #888;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .tp-btn:hover { border-color: #555; color: #aaa; }
+
+        .search-highlight {
+            background: #facc15;
+            color: #000;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .search-current {
+            background: #f97316;
+            color: #000;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .tp-select {
+            background: #111;
+            border: 1px solid #222;
+            color: #888;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .tp-content {
+            position: absolute;
+            inset: 48px 0 56px 0;
+            overflow-y: auto;
+            padding: 50vh 10% 50vh 10%;
+            scroll-behavior: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .tp-content::-webkit-scrollbar { display: none; }
+
+        .tp-guide {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .line { margin-bottom: 0.8em; }
+        .line.scene { color: #555; font-style: italic; font-size: 0.9em; }
+        .line.char { font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 1.2em; }
+        .line.dialog { color: #bbb; line-height: 1.6; }
+        .line.hidden { display: none; }
+
+        .tp-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            z-index: 10;
+        }
+
+        .tp-ctrl {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #333;
+            background: none;
+            color: #888;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .tp-ctrl:hover { border-color: #555; color: #aaa; }
+
+        .tp-play {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: #fff;
+            color: #000;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .tp-play:hover { background: #e0e0e0; }
+
+        .tp-sep {
+            width: 1px;
+            height: 20px;
+            background: #222;
+        }
+
+        .tp-msg {
+            position: fixed;
+            bottom: 72px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20,20,20,0.95);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #888;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+
+        .tp-msg.show { opacity: 1; }
+
+        .line.selected {
+            outline: 2px solid #fff;
+            outline-offset: 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="editor" id="editor">
+    <h1>Teleprompter</h1>
+    
+    <label for="guion">Guion</label>
+    <textarea id="guion" placeholder="Pega tu guion aqui..."></textarea>
+    
+    <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
+        <input type="text" id="search-editor" placeholder="Buscar palabra..." style="flex:1; background:#111; border:1px solid #222; color:#e0e0e0; padding:8px 12px; border-radius:4px; font-size:13px;">
+        <button class="btn btn-secondary" id="search-editor-btn" style="flex:none; width:auto; padding:8px 16px; margin:0;">Buscar</button>
+        <span id="search-editor-count" style="font-size:12px; color:#666;"></span>
+    </div>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label>Velocidad</label>
+            <div class="control-row">
+                <input type="range" id="vel" min="1" max="15" value="3">
+                <span class="control-value" id="vel-val">3</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>Tamano</label>
+            <div class="control-row">
+                <input type="range" id="size" min="14" max="100" value="22">
+                <span class="control-value" id="size-val">22</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="pjs-section">
+        <label>Personajes</label>
+        <div id="pjs-list" class="pjs-list">
+            <div class="empty-msg">Pega un guion para comenzar</div>
+        </div>
+    </div>
+
+    <div class="btn-row">
+        <button class="btn btn-primary" id="btn-copy">Copiar</button>
+        <button class="btn btn-primary" id="btn-start" disabled>Iniciar</button>
+    </div>
+</div>
+
+<div class="tp" id="tp">
+    <div class="tp-guide"></div>
+    
+    <div class="tp-header">
+        <button class="tp-btn" id="btn-back">&#9664; Volver</button>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button class="tp-btn" id="btn-fullscreen" title="Pantalla completa (F)">⛶</button>
+        </div>
+        <select class="tp-select" id="sel-pj">
+            <option value="todos">Ver todos</option>
+        </select>
+    </div>
+
+    <div class="tp-content" id="tp-text"></div>
+
+    <div class="tp-footer">
+        <button class="tp-ctrl" id="btn-slower">−</button>
+        <button class="tp-play" id="btn-play">&#9654;</button>
+        <button class="tp-ctrl" id="btn-faster">+</button>
+        <div class="tp-sep"></div>
+        <button class="tp-ctrl" id="btn-smaller" style="font-size:12px;">A−</button>
+        <button class="tp-ctrl" id="btn-bigger" style="font-size:14px;">A+</button>
+    </div>
+
+    <div class="tp-msg" id="tp-msg"></div>
+</div>
+
+<script>
+var data = [], chars = {}, colors = ['#60a5fa','#34d399','#f97316','#f87171','#a78bfa','#f472b6','#22d3ee','#facc15','#4ade80','#fb923c','#c084fc','#2dd4bf','#e879f9','#a3e635','#38bdf8','#fbbf24','#818cf8','#f43f5e','#06b6d4','#84cc16','#e11d48','#0ea5e9','#d946ef','#65a30d','#dc2626','#7c3aed','#0891b2','#ca8a04'];
+var cIdx = 0, speed = 3, fontSize = 22, paused = true, anim = null, filter = 'todos';
+
+function parse(text) {
+    var lines = text.split('\n');
+    var result = [], ch = {};
+    cIdx = 0;
+    
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (!line) continue;
+        
+        // Escenas
+        if (line[0] === '[' && line[line.length-1] === ']') {
+            result.push({t: 's', v: line.slice(1, -1)});
+            continue;
+        }
+        if (line.toUpperCase().indexOf('ESCENA') === 0 || line.toUpperCase().indexOf('VIDEO') === 0) {
+            result.push({t: 's', v: line});
+            continue;
+        }
+        if (line.match(/^(ESCENA|VIDEO)\s+\d+/i)) {
+            result.push({t: 's', v: line});
+            continue;
+        }
+        
+        // Dividir líneas con múltiples personajes
+        var partes = dividirLinea(line);
+        
+        for (var p = 0; p < partes.length; p++) {
+            var parte = partes[p].trim();
+            if (!parte) continue;
+            
+            var idx = parte.indexOf(':');
+            if (idx > 0 && idx < 35) {
+                var name = parte.substring(0, idx).trim();
+                var txt = parte.substring(idx + 1).trim();
+                
+                if (name.length >= 2 && name === name.toUpperCase() && /[A-Z]/.test(name)) {
+                    var norm = name;
+                    if (name.indexOf('CORO') === 0) norm = 'CORO';
+                    if (name.indexOf('VERSO') === 0) norm = 'VERSO';
+                    if (name.indexOf('PRE CORO') === 0) norm = 'PRE CORO';
+                    if (name.indexOf('PRISIONERO') === 0) norm = 'PRISIONEROS';
+                    if (name.indexOf('PRISIONERA') === 0) norm = 'PRISIONEROS';
+                    if (name.indexOf('TODOS') === 0) norm = 'TODOS';
+                    
+                    result.push({t: 'c', n: norm, v: txt});
+                    if (!ch[norm]) {
+                        var colorAsignado = colors[cIdx % colors.length];
+                        // Colores especiales para grupos
+                        if (norm === 'CORO') colorAsignado = '#facc15';
+                        else if (norm === 'PRE CORO') colorAsignado = '#fb923c';
+                        else if (norm === 'VERSO') colorAsignado = '#34d399';
+                        else if (norm === 'PRISIONEROS') colorAsignado = '#a78bfa';
+                        else if (norm === 'TODOS') colorAsignado = '#f472b6';
+                        ch[norm] = {c: colorAsignado, n: 0};
+                        cIdx++;
+                    }
+                    ch[norm].n++;
+                    continue;
+                }
+            }
+            result.push({t: 'd', v: parte});
+        }
+    }
+    return {data: result, chars: ch};
+}
+
+function dividirLinea(linea) {
+    var partes = [];
+    var actual = '';
+    
+    for (var i = 0; i < linea.length; i++) {
+        actual += linea[i];
+        
+        if (linea[i] === ':' && i < linea.length - 1) {
+            var resto = linea.substring(i + 1).trimStart();
+            
+            // Verificar si lo que sigue es otro nombre de personaje
+            var match = resto.match(/^([A-ZÁÉÍÓÚÑÜ][A-ZÁÉÍÓÚÑÜ\s\d]*?):/);
+            if (match && match[1].trim().length >= 2) {
+                partes.push(actual.trim());
+                actual = '';
+            }
+        }
+    }
+    
+    if (actual.trim()) partes.push(actual.trim());
+    return partes.length > 0 ? partes : [linea];
+}
+
+function update() {
+    var text = document.getElementById('guion').value;
+    if (!text.trim()) {
+        document.getElementById('pjs-list').innerHTML = '<div class="empty-msg">Pega un guion para comenzar</div>';
+        document.getElementById('btn-start').disabled = true;
+        return;
+    }
+    
+    var r = parse(text);
+    data = r.data;
+    chars = r.chars;
+    
+    var html = '';
+    var n = 0;
+    for (var name in chars) {
+        html += '<div class="pj-tag"><div class="pj-dot" style="background:' + chars[name].c + '"></div><label for="c-' + n + '">' + name + '</label><input type="color" id="c-' + n + '" value="' + chars[name].c + '" data-name="' + name + '"><span class="pj-count">' + chars[name].n + '</span></div>';
+        n++;
+    }
+    
+    document.getElementById('pjs-list').innerHTML = html || '<div class="empty-msg">Sin personajes</div>';
+    document.getElementById('btn-start').disabled = n === 0;
+    
+    var inputs = document.querySelectorAll('input[type="color"]');
+    for (var j = 0; j < inputs.length; j++) {
+        inputs[j].onchange = function() {
+            chars[this.dataset.name].c = this.value;
+            this.previousElementSibling.style.background = this.value;
+        };
+    }
+}
+
+function render() {
+    var html = '';
+    for (var i = 0; i < data.length; i++) {
+        var d = data[i];
+        var cls = 'line', style = '', txt = '', hidden = '', dataAttr = 'data-idx="' + i + '"';
+        
+        if (d.t === 's') {
+            cls += ' scene';
+            txt = d.v;
+            dataAttr += ' data-type="scene"';
+        } else if (d.t === 'c') {
+            if (filter !== 'todos' && d.n !== filter) hidden = ' hidden';
+            cls += ' char' + hidden;
+            style = 'color:' + (chars[d.n] ? chars[d.n].c : '#6b9fff');
+            txt = d.n + '<br><span style="font-weight:400;text-transform:none;color:#bbb;">' + d.v + '</span>';
+            dataAttr += ' data-type="char" data-name="' + d.n + '"';
+        } else {
+            if (filter !== 'todos') {
+                for (var j = i - 1; j >= 0; j--) {
+                    if (data[j].t === 's') break;
+                    if (data[j].t === 'c' && data[j].n !== filter) { hidden = ' hidden'; break; }
+                    if (data[j].t === 'c') break;
+                }
+            }
+            cls += ' dialog' + hidden;
+            for (var j = i - 1; j >= 0; j--) {
+                if (data[j].t === 'c') {
+                    style = 'color:' + (chars[data[j].n] ? chars[data[j].n].c : '#bbb');
+                    dataAttr += ' data-type="dialog" data-name="' + data[j].n + '"';
+                    break;
+                }
+            }
+            if (!style) style = 'color:#bbb';
+            txt = d.v;
+        }
+        
+        html += '<div class="' + cls + '" ' + dataAttr + ' style="' + style + '">' + txt + '</div>';
+    }
+    document.getElementById('tp-text').innerHTML = html;
+    document.getElementById('tp-text').scrollTop = 0;
+    document.getElementById('tp-text').style.fontSize = fontSize + 'px';
+    
+    // Click en cada línea para pausar
+    var lineas = document.querySelectorAll('#tp-text .line');
+    for (var k = 0; k < lineas.length; k++) {
+        lineas[k].addEventListener('click', function(e) {
+            e.stopPropagation();
+            paused = true;
+            document.getElementById('btn-play').innerHTML = '&#9654;';
+            
+            // Resaltar línea seleccionada
+            var prev = document.querySelector('#tp-text .line.selected');
+            if (prev) prev.classList.remove('selected');
+            this.classList.add('selected');
+        });
+    }
+}
+
+function start() {
+    document.getElementById('editor').style.display = 'none';
+    document.getElementById('tp').classList.add('active');
+    
+    var sel = document.getElementById('sel-pj');
+    sel.innerHTML = '<option value="todos">Ver todos</option>';
+    for (var n in chars) {
+        sel.innerHTML += '<option value="' + n + '">' + n + '</option>';
+    }
+    sel.value = 'todos';
+    filter = 'todos';
+    paused = true;
+    document.getElementById('btn-play').innerHTML = '&#9654;';
+    render();
+    msg('Presiona play');
+}
+
+function back() {
+    paused = true;
+    if (anim) cancelAnimationFrame(anim);
+    document.getElementById('tp').classList.remove('active');
+    document.getElementById('editor').style.display = '';
+}
+
+function msg(t) {
+    var el = document.getElementById('tp-msg');
+    el.textContent = t;
+    el.classList.add('show');
+    clearTimeout(window._mt);
+    window._mt = setTimeout(function() { el.classList.remove('show'); }, 1500);
+}
+
+function togglePlay() {
+    paused = !paused;
+    document.getElementById('btn-play').innerHTML = paused ? '&#9654;' : '&#9646;&#9646;';
+    if (!paused) animate();
+}
+
+function animate() {
+    if (paused) return;
+    document.getElementById('tp-text').scrollTop += speed * 0.5;
+    anim = requestAnimationFrame(animate);
+}
+
+function setSpeed(v) {
+    speed = Math.max(1, Math.min(15, v));
+    document.getElementById('vel').value = speed;
+    document.getElementById('vel-val').textContent = speed;
+}
+
+function setSize(v) {
+    fontSize = Math.max(14, Math.min(100, v));
+    document.getElementById('size').value = fontSize;
+    document.getElementById('size-val').textContent = fontSize;
+    document.getElementById('tp-text').style.fontSize = fontSize + 'px';
+}
+
+document.getElementById('guion').oninput = update;
+
+// Buscador en editor
+document.getElementById('search-editor-btn').onclick = function() {
+    buscarEnEditor();
+};
+
+document.getElementById('search-editor').onkeydown = function(e) {
+    if (e.code === 'Enter') {
+        e.preventDefault();
+        buscarEnEditor();
+    }
+};
+
+function buscarEnEditor() {
+    var textarea = document.getElementById('guion');
+    var busqueda = document.getElementById('search-editor').value;
+    var countEl = document.getElementById('search-editor-count');
+    
+    if (!busqueda || busqueda.length < 2) {
+        countEl.textContent = '';
+        return;
+    }
+    
+    var texto = textarea.value;
+    var inicio = textarea.selectionEnd;
+    var idx = texto.indexOf(busqueda, inicio);
+    
+    // Si no encuentra desde la posición actual, buscar desde el inicio
+    if (idx === -1) {
+        idx = texto.indexOf(busqueda, 0);
+    }
+    
+    if (idx !== -1) {
+        textarea.focus();
+        textarea.setSelectionRange(idx, idx + busqueda.length);
+        
+        // Calcular en qué línea está y hacer scroll
+        var lineas = texto.substring(0, idx).split('\n');
+        var numLinea = lineas.length;
+        var lineHeight = 20; // aproximate line height in px
+        var scrollTarget = (numLinea - 5) * lineHeight;
+        textarea.scrollTop = scrollTarget;
+        
+        // Contar total de coincidencias
+        var total = 0;
+        var pos = 0;
+        while ((pos = texto.indexOf(busqueda, pos)) !== -1) {
+            total++;
+            pos++;
+        }
+        countEl.textContent = '1 de ' + total;
+    } else {
+        countEl.textContent = 'Sin resultados';
+    }
+}
+document.getElementById('vel').oninput = function() { setSpeed(+this.value); };
+document.getElementById('size').oninput = function() { setSize(+this.value); };
+document.getElementById('btn-copy').onclick = function() {
+    var textarea = document.getElementById('guion');
+    if (!textarea.value.trim()) return;
+    navigator.clipboard.writeText(textarea.value).then(function() {
+        var btn = document.getElementById('btn-copy');
+        btn.textContent = '¡Copiado!';
+        setTimeout(function() { btn.textContent = 'Copiar'; }, 1500);
+    });
+};
+document.getElementById('btn-start').onclick = start;
+document.getElementById('btn-back').onclick = back;
+document.getElementById('btn-play').onclick = togglePlay;
+document.getElementById('btn-slower').onclick = function() { setSpeed(speed - 1); msg('Vel: ' + speed); };
+document.getElementById('btn-faster').onclick = function() { setSpeed(speed + 1); msg('Vel: ' + speed); };
+document.getElementById('btn-smaller').onclick = function() { setSize(fontSize - 2); msg('Letra: ' + fontSize); };
+document.getElementById('btn-bigger').onclick = function() { setSize(fontSize + 2); msg('Letra: ' + fontSize); };
+document.getElementById('sel-pj').onchange = function() { filter = this.value; render(); };
+document.getElementById('tp-text').onclick = togglePlay;
+
+// Pantalla completa
+document.getElementById('btn-fullscreen').onclick = toggleFullscreen;
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+document.onkeydown = function(e) {
+    if (!document.getElementById('tp').classList.contains('active')) return;
+    if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+    if (e.code === 'ArrowUp' || e.code === 'ArrowRight') { e.preventDefault(); setSpeed(speed + 1); msg('Vel: ' + speed); }
+    if (e.code === 'ArrowDown' || e.code === 'ArrowLeft') { e.preventDefault(); setSpeed(speed - 1); msg('Vel: ' + speed); }
+    if (e.code === 'KeyF') { e.preventDefault(); toggleFullscreen(); }
+    if (e.code === 'Escape') {
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            back();
+        }
+    }
+};
+
+update();
+</script>
+
+</body>
+</html>
