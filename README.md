@@ -12,7 +12,7 @@ Teleprompter profesional para teatro, video y presentaciones. Aplicacion web pur
 - **Pantalla completa** con controles ocultos
 - **Atajos de teclado** para control rapido
 - **Estadisticas** en tiempo real (lineas, personajes, palabras, tiempo estimado)
-- **Diseño responsive** para desktop y movil
+- **Diseno responsive** para desktop y movil
 
 ## Formato del guion
 
@@ -26,7 +26,7 @@ OTRO PERSONAJE: Respuesta aqui.
 ### Reglas de deteccion
 
 - **Personajes**: Nombres en MAYUSCULAS seguidos de dos puntos (`:`)
-- **Escenas**: Lineas que empiecen con `ESCENA`, `VIDEO` o esten entre corchetes `[ ]]
+- **Escenas**: Lineas que empiecen con `ESCENA`, `VIDEO` o esten entre corchetes `[ ]]`
 - **Grupos**: Se detectan automaticamente `CORO`, `VERSO`, `PRE CORO`, `TODOS`
 
 ## Atajos de teclado
@@ -53,7 +53,3 @@ OTRO PERSONAJE: Respuesta aqui.
 - HTML5
 - CSS3 (Custom Properties, Grid, Flexbox)
 - JavaScript vanilla (sin frameworks)
-
-## Licencia
-
-MIT
