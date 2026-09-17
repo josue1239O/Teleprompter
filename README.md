@@ -1,4 +1,4 @@
-# Teleprompter Pro
+# Teleprompter
 
 Teleprompter profesional para teatro, video y presentaciones. Aplicacion web pura (HTML/CSS/JS) sin dependencias externas.
 
