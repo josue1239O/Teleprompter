@@ -3,137 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teleprompter</title>
+    <title>Teleprompter Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-        
+
+        :root {
+            --bg-primary: #09090b;
+            --bg-secondary: #18181b;
+            --bg-tertiary: #27272a;
+            --border: #3f3f46;
+            --border-light: #52525b;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.15);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: #0a0a0a;
-            color: #e0e0e0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* EDITOR */
-        .editor {
-            max-width: 720px;
-            margin: 0 auto;
-            padding: 60px 24px;
+        /* ============ LAYOUT ============ */
+        .app {
+            display: flex;
+            min-height: 100vh;
         }
 
-        .editor h1 {
-            font-size: 24px;
+        /* ============ SIDEBAR ============ */
+        .sidebar {
+            width: 380px;
+            min-width: 380px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), #a855f7);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-badge {
+            font-size: 0.65rem;
             font-weight: 500;
-            color: #fff;
-            margin-bottom: 40px;
-            letter-spacing: -0.5px;
+            color: var(--accent);
+            background: var(--accent-glow);
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
         }
 
-        .editor label {
-            display: block;
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        textarea {
-            width: 100%;
-            height: 320px;
-            background: #111;
-            border: 1px solid #222;
-            color: #e0e0e0;
-            padding: 16px;
-            font-size: 14px;
-            font-family: 'SF Mono', 'Consolas', monospace;
-            border-radius: 6px;
-            resize: vertical;
-            line-height: 1.6;
-        }
+        .sidebar-content::-webkit-scrollbar { width: 4px; }
+        .sidebar-content::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-        textarea:focus {
-            outline: none;
-            border-color: #333;
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-top: 24px;
-        }
-
-        .control-group {
+        /* ============ FORM ELEMENTS ============ */
+        .form-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
-        .control-row {
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 280px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 16px;
+            font-size: 0.875rem;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            border-radius: 12px;
+            resize: vertical;
+            line-height: 1.7;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Search */
+        .search-box {
             display: flex;
+            gap: 8px;
             align-items: center;
-            gap: 12px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* Controls */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .control-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .control-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent);
+            font-variant-numeric: tabular-nums;
         }
 
         input[type="range"] {
             -webkit-appearance: none;
-            flex: 1;
+            width: 100%;
             height: 4px;
-            background: #222;
+            background: var(--bg-tertiary);
             border-radius: 2px;
             outline: none;
+            cursor: pointer;
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
-            background: #e0e0e0;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
             border-radius: 50%;
             cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
         }
 
-        .control-value {
-            font-size: 13px;
-            color: #888;
-            min-width: 24px;
-            text-align: right;
-            font-variant-numeric: tabular-nums;
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 4px var(--accent-glow);
         }
 
-        /* PERSONAJES */
-        .pjs-section {
-            margin-top: 32px;
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
         }
 
-        .pjs-list {
+        /* Characters */
+        .characters-section {
+            flex: 1;
+        }
+
+        .characters-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 12px;
+            gap: 8px;
+            margin-top: 8px;
         }
 
-        .pj-tag {
+        .character-tag {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            background: #161616;
-            border: 1px solid #222;
-            border-radius: 4px;
-            font-size: 12px;
+            gap: 8px;
+            padding: 6px 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            transition: border-color 0.2s;
         }
 
-        .pj-dot {
+        .character-tag:hover {
+            border-color: var(--border-light);
+        }
+
+        .character-dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
+            flex-shrink: 0;
         }
 
-        .pj-tag input[type="color"] {
+        .character-tag input[type="color"] {
             width: 0;
             height: 0;
             padding: 0;
@@ -142,300 +288,541 @@
             position: absolute;
         }
 
-        .pj-tag label {
+        .character-tag label {
             cursor: pointer;
             margin: 0;
         }
 
-        .pj-count {
-            color: #555;
-            font-size: 11px;
+        .character-count {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
-        .empty-msg {
-            font-size: 13px;
-            color: #444;
-            padding: 20px 0;
+        .empty-state {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding: 24px;
+            text-align: center;
+            background: var(--bg-primary);
+            border: 1px dashed var(--border);
+            border-radius: 12px;
         }
 
-        /* BOTONES */
-        .btn-row {
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .stat-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+        }
+
+        /* Buttons */
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border);
             display: flex;
-            gap: 12px;
-            margin-top: 32px;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .btn {
-            flex: 1;
-            padding: 12px;
+            padding: 14px 20px;
             border: none;
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 0.9rem;
             font-weight: 500;
+            font-family: inherit;
             cursor: pointer;
-            transition: background 0.15s;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-primary {
-            background: #fff;
-            color: #000;
+            background: var(--accent);
+            color: white;
         }
 
-        .btn-primary:hover { background: #e0e0e0; }
-        .btn-primary:disabled { background: #222; color: #555; cursor: not-allowed; }
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
 
         .btn-secondary {
-            background: #161616;
-            color: #888;
-            border: 1px solid #222;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
         }
 
-        .btn-secondary:hover { background: #1a1a1a; color: #aaa; }
+        .btn-secondary:hover {
+            background: var(--border);
+            color: var(--text-primary);
+        }
 
-        /* TELEPROMPTER */
-        .tp {
+        .btn-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-row .btn {
+            flex: 1;
+        }
+
+        /* ============ TELEPROMPTER VIEW ============ */
+        .teleprompter {
             display: none;
             position: fixed;
             inset: 0;
             background: #000;
+            z-index: 1000;
         }
 
-        .tp.active { display: block; }
+        .teleprompter.active {
+            display: flex;
+            flex-direction: column;
+        }
 
+        /* Guide line */
+        .tp-guide {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.4), transparent);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* Header */
         .tp-header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: 48px;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 16px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+            padding: 0 24px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent);
             z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .teleprompter:hover .tp-header {
+            opacity: 1;
+        }
+
+        .tp-header-left,
+        .tp-header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .tp-btn {
-            background: none;
-            border: 1px solid #333;
-            color: #888;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 12px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: inherit;
             cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .tp-btn:hover { border-color: #555; color: #aaa; }
-
-        .search-highlight {
-            background: #facc15;
-            color: #000;
-            padding: 0 2px;
-            border-radius: 2px;
-        }
-
-        .search-current {
-            background: #f97316;
-            color: #000;
-            padding: 0 2px;
-            border-radius: 2px;
+        .tp-btn:hover {
+            background: rgba(255,255,255,0.12);
+            color: var(--text-primary);
         }
 
         .tp-select {
-            background: #111;
-            border: 1px solid #222;
-            color: #888;
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-size: 12px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
+        .tp-select:hover {
+            background: rgba(255,255,255,0.12);
+        }
+
+        .tp-select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .tp-timer {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        /* Content */
         .tp-content {
-            position: absolute;
-            inset: 48px 0 56px 0;
+            flex: 1;
             overflow-y: auto;
-            padding: 50vh 10% 50vh 10%;
-            scroll-behavior: auto;
+            padding: 50vh 12% 50vh 12%;
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
 
         .tp-content::-webkit-scrollbar { display: none; }
 
-        .tp-guide {
-            position: fixed;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: rgba(255,255,255,0.06);
-            z-index: 5;
-            pointer-events: none;
+        .tp-line {
+            margin-bottom: 1em;
+            transition: opacity 0.2s;
         }
 
-        .line { margin-bottom: 0.8em; }
-        .line.scene { color: #555; font-style: italic; font-size: 0.9em; }
-        .line.char { font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 1.2em; }
-        .line.dialog { color: #bbb; line-height: 1.6; }
-        .line.hidden { display: none; }
+        .tp-line.scene {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.9em;
+            padding: 8px 16px;
+            border-left: 3px solid var(--border);
+            margin: 1.5em 0;
+        }
 
+        .tp-line.character {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 1.5em;
+            font-size: 0.95em;
+        }
+
+        .tp-line.dialogue {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .tp-line.hidden {
+            display: none;
+        }
+
+        .tp-line.selected {
+            outline: 2px solid var(--accent);
+            outline-offset: 8px;
+            border-radius: 8px;
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        /* Footer */
         .tp-footer {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 56px;
+            height: 72px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            gap: 16px;
+            background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
             z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .teleprompter:hover .tp-footer {
+            opacity: 1;
         }
 
         .tp-ctrl {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            border: 1px solid #333;
-            background: none;
-            color: #888;
-            font-size: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-family: inherit;
             cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .tp-ctrl:hover { border-color: #555; color: #aaa; }
+        .tp-ctrl:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+        }
 
         .tp-play {
-            width: 48px;
-            height: 48px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             border: none;
-            background: #fff;
-            color: #000;
-            font-size: 18px;
+            background: var(--accent);
+            color: white;
+            font-size: 1.25rem;
             cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .tp-play:hover { background: #e0e0e0; }
+        .tp-play:hover {
+            background: var(--accent-hover);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+        }
 
         .tp-sep {
             width: 1px;
-            height: 20px;
-            background: #222;
+            height: 24px;
+            background: rgba(255,255,255,0.1);
         }
 
-        .tp-msg {
+        .tp-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Toast */
+        .tp-toast {
             position: fixed;
-            bottom: 72px;
+            bottom: 90px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(20,20,20,0.95);
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #888;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
             z-index: 20;
             opacity: 0;
             transition: opacity 0.2s;
             pointer-events: none;
+            backdrop-filter: blur(8px);
         }
 
-        .tp-msg.show { opacity: 1; }
+        .tp-toast.show { opacity: 1; }
 
-        .line.selected {
-            outline: 2px solid #fff;
-            outline-offset: 4px;
-            border-radius: 4px;
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 900px) {
+            .app {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .sidebar-content {
+                max-height: 60vh;
+            }
+
+            .teleprompter {
+                position: fixed;
+            }
+
+            .tp-content {
+                padding: 50vh 6% 50vh 6%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="editor" id="editor">
-    <h1>Teleprompter</h1>
-    
-    <label for="guion">Guion</label>
-    <textarea id="guion" placeholder="Pega tu guion aqui..."></textarea>
-    
-    <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
-        <input type="text" id="search-editor" placeholder="Buscar palabra..." style="flex:1; background:#111; border:1px solid #222; color:#e0e0e0; padding:8px 12px; border-radius:4px; font-size:13px;">
-        <button class="btn btn-secondary" id="search-editor-btn" style="flex:none; width:auto; padding:8px 16px; margin:0;">Buscar</button>
-        <span id="search-editor-count" style="font-size:12px; color:#666;"></span>
-    </div>
-    
-    <div class="controls">
-        <div class="control-group">
-            <label>Velocidad</label>
-            <div class="control-row">
-                <input type="range" id="vel" min="1" max="15" value="3">
-                <span class="control-value" id="vel-val">3</span>
+<div class="app">
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">&#9654;</div>
+                <h1>Teleprompter</h1>
+                <span class="logo-badge">PRO</span>
             </div>
         </div>
-        <div class="control-group">
-            <label>Tamano</label>
-            <div class="control-row">
-                <input type="range" id="size" min="14" max="100" value="22">
-                <span class="control-value" id="size-val">22</span>
+
+        <div class="sidebar-content">
+            <!-- Guion -->
+            <div class="form-group">
+                <label class="form-label">Guion</label>
+                <textarea id="guion" placeholder="Pega tu guion aqui...&#10;&#10;PERSONAJE: Dialogo aqui...&#10;ESCENA 1: Descripcion"></textarea>
+            </div>
+
+            <!-- Buscador -->
+            <div class="form-group">
+                <div class="search-box">
+                    <input type="text" id="search-editor" class="search-input" placeholder="Buscar en el guion...">
+                    <button class="btn btn-secondary" id="search-editor-btn" style="padding:10px 14px; flex:none;">&#128269;</button>
+                    <span id="search-editor-count" class="search-count"></span>
+                </div>
+            </div>
+
+            <!-- Controles -->
+            <div class="controls-grid">
+                <div class="control-card">
+                    <div class="control-header">
+                        <span class="form-label">Velocidad</span>
+                        <span class="control-value" id="vel-val">3</span>
+                    </div>
+                    <input type="range" id="vel" min="1" max="15" value="3">
+                </div>
+                <div class="control-card">
+                    <div class="control-header">
+                        <span class="form-label">Tamano</span>
+                        <span class="control-value" id="size-val">22</span>
+                    </div>
+                    <input type="range" id="size" min="14" max="100" value="22">
+                </div>
+            </div>
+
+            <!-- Estadisticas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-lines">0</div>
+                    <div class="stat-label">Lineas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-chars">0</div>
+                    <div class="stat-label">Personajes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-words">0</div>
+                    <div class="stat-label">Palabras</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-time">0</div>
+                    <div class="stat-label">Min</div>
+                </div>
+            </div>
+
+            <!-- Personajes -->
+            <div class="characters-section">
+                <label class="form-label">Personajes</label>
+                <div id="pjs-list" class="characters-list">
+                    <div class="empty-state">Pega un guion para comenzar</div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="pjs-section">
-        <label>Personajes</label>
-        <div id="pjs-list" class="pjs-list">
-            <div class="empty-msg">Pega un guion para comenzar</div>
+        <!-- Footer -->
+        <div class="sidebar-footer">
+            <div class="btn-row">
+                <button class="btn btn-secondary" id="btn-example">Ejemplo</button>
+                <button class="btn btn-secondary" id="btn-copy">Copiar</button>
+            </div>
+            <button class="btn btn-primary" id="btn-start" disabled>
+                <span>&#9654;</span> Iniciar Teleprompter
+            </button>
         </div>
     </div>
 
-    <div class="btn-row">
-        <button class="btn btn-primary" id="btn-copy">Copiar</button>
-        <button class="btn btn-primary" id="btn-start" disabled>Iniciar</button>
-    </div>
-</div>
+    <!-- TELEPROMPTER -->
+    <div class="teleprompter" id="tp">
+        <div class="tp-guide"></div>
 
-<div class="tp" id="tp">
-    <div class="tp-guide"></div>
-    
-    <div class="tp-header">
-        <button class="tp-btn" id="btn-back">&#9664; Volver</button>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <button class="tp-btn" id="btn-fullscreen" title="Pantalla completa (F)">⛶</button>
+        <div class="tp-header">
+            <div class="tp-header-left">
+                <button class="tp-btn" id="btn-back">&#9664; Volver</button>
+                <span class="tp-timer" id="tp-timer">00:00</span>
+            </div>
+            <div class="tp-header-right">
+                <button class="tp-btn" id="btn-fullscreen" title="Pantalla completa (F)">&#9974; Pantalla completa</button>
+                <select class="tp-select" id="sel-pj">
+                    <option value="todos">Ver todos</option>
+                </select>
+            </div>
         </div>
-        <select class="tp-select" id="sel-pj">
-            <option value="todos">Ver todos</option>
-        </select>
+
+        <div class="tp-content" id="tp-text"></div>
+
+        <div class="tp-footer">
+            <span class="tp-label">Velocidad</span>
+            <button class="tp-ctrl" id="btn-slower">&#8722;</button>
+            <button class="tp-play" id="btn-play">&#9654;</button>
+            <button class="tp-ctrl" id="btn-faster">+</button>
+            <div class="tp-sep"></div>
+            <span class="tp-label">Letra</span>
+            <button class="tp-ctrl" id="btn-smaller">A&#8722;</button>
+            <button class="tp-ctrl" id="btn-bigger">A+</button>
+        </div>
+
+        <div class="tp-toast" id="tp-msg"></div>
     </div>
-
-    <div class="tp-content" id="tp-text"></div>
-
-    <div class="tp-footer">
-        <button class="tp-ctrl" id="btn-slower">−</button>
-        <button class="tp-play" id="btn-play">&#9654;</button>
-        <button class="tp-ctrl" id="btn-faster">+</button>
-        <div class="tp-sep"></div>
-        <button class="tp-ctrl" id="btn-smaller" style="font-size:12px;">A−</button>
-        <button class="tp-ctrl" id="btn-bigger" style="font-size:14px;">A+</button>
-    </div>
-
-    <div class="tp-msg" id="tp-msg"></div>
 </div>
 
 <script>
-var data = [], chars = {}, colors = ['#60a5fa','#34d399','#f97316','#f87171','#a78bfa','#f472b6','#22d3ee','#facc15','#4ade80','#fb923c','#c084fc','#2dd4bf','#e879f9','#a3e635','#38bdf8','#fbbf24','#818cf8','#f43f5e','#06b6d4','#84cc16','#e11d48','#0ea5e9','#d946ef','#65a30d','#dc2626','#7c3aed','#0891b2','#ca8a04'];
-var cIdx = 0, speed = 3, fontSize = 22, paused = true, anim = null, filter = 'todos';
+var data = [], chars = {}, colors = ['#6366f1','#22c55e','#f59e0b','#ef4444','#a855f7','#ec4899','#06b6d4','#eab308','#10b981','#f97316','#8b5cf6','#14b8a6','#d946ef','#84cc16','#3b82f6','#fbbf24','#6366f1','#f43f5e','#0ea5e9','#84cc16','#e11d48','#0ea5e9','#d946ef','#65a30d','#dc2626','#7c3aed','#0891b2','#ca8a04'];
+var cIdx = 0, speed = 3, fontSize = 22, paused = true, anim = null, filter = 'todos', startTime = 0, timerInterval = null;
 
 function parse(text) {
     var lines = text.split('\n');
     var result = [], ch = {};
     cIdx = 0;
-    
+
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i].trim();
         if (!line) continue;
-        
-        // Escenas
+
         if (line[0] === '[' && line[line.length-1] === ']') {
             result.push({t: 's', v: line.slice(1, -1)});
             continue;
@@ -448,19 +835,18 @@ function parse(text) {
             result.push({t: 's', v: line});
             continue;
         }
-        
-        // Dividir líneas con múltiples personajes
+
         var partes = dividirLinea(line);
-        
+
         for (var p = 0; p < partes.length; p++) {
             var parte = partes[p].trim();
             if (!parte) continue;
-            
+
             var idx = parte.indexOf(':');
             if (idx > 0 && idx < 35) {
                 var name = parte.substring(0, idx).trim();
                 var txt = parte.substring(idx + 1).trim();
-                
+
                 if (name.length >= 2 && name === name.toUpperCase() && /[A-Z]/.test(name)) {
                     var norm = name;
                     if (name.indexOf('CORO') === 0) norm = 'CORO';
@@ -469,16 +855,15 @@ function parse(text) {
                     if (name.indexOf('PRISIONERO') === 0) norm = 'PRISIONEROS';
                     if (name.indexOf('PRISIONERA') === 0) norm = 'PRISIONEROS';
                     if (name.indexOf('TODOS') === 0) norm = 'TODOS';
-                    
+
                     result.push({t: 'c', n: norm, v: txt});
                     if (!ch[norm]) {
                         var colorAsignado = colors[cIdx % colors.length];
-                        // Colores especiales para grupos
-                        if (norm === 'CORO') colorAsignado = '#facc15';
-                        else if (norm === 'PRE CORO') colorAsignado = '#fb923c';
-                        else if (norm === 'VERSO') colorAsignado = '#34d399';
-                        else if (norm === 'PRISIONEROS') colorAsignado = '#a78bfa';
-                        else if (norm === 'TODOS') colorAsignado = '#f472b6';
+                        if (norm === 'CORO') colorAsignado = '#eab308';
+                        else if (norm === 'PRE CORO') colorAsignado = '#f97316';
+                        else if (norm === 'VERSO') colorAsignado = '#22c55e';
+                        else if (norm === 'PRISIONEROS') colorAsignado = '#a855f7';
+                        else if (norm === 'TODOS') colorAsignado = '#ec4899';
                         ch[norm] = {c: colorAsignado, n: 0};
                         cIdx++;
                     }
@@ -495,14 +880,12 @@ function parse(text) {
 function dividirLinea(linea) {
     var partes = [];
     var actual = '';
-    
+
     for (var i = 0; i < linea.length; i++) {
         actual += linea[i];
-        
+
         if (linea[i] === ':' && i < linea.length - 1) {
             var resto = linea.substring(i + 1).trimStart();
-            
-            // Verificar si lo que sigue es otro nombre de personaje
             var match = resto.match(/^([A-ZÁÉÍÓÚÑÜ][A-ZÁÉÍÓÚÑÜ\s\d]*?):/);
             if (match && match[1].trim().length >= 2) {
                 partes.push(actual.trim());
@@ -510,7 +893,7 @@ function dividirLinea(linea) {
             }
         }
     }
-    
+
     if (actual.trim()) partes.push(actual.trim());
     return partes.length > 0 ? partes : [linea];
 }
@@ -518,25 +901,40 @@ function dividirLinea(linea) {
 function update() {
     var text = document.getElementById('guion').value;
     if (!text.trim()) {
-        document.getElementById('pjs-list').innerHTML = '<div class="empty-msg">Pega un guion para comenzar</div>';
+        document.getElementById('pjs-list').innerHTML = '<div class="empty-state">Pega un guion para comenzar</div>';
         document.getElementById('btn-start').disabled = true;
+        document.getElementById('stat-lines').textContent = '0';
+        document.getElementById('stat-chars').textContent = '0';
+        document.getElementById('stat-words').textContent = '0';
+        document.getElementById('stat-time').textContent = '0';
         return;
     }
-    
+
     var r = parse(text);
     data = r.data;
     chars = r.chars;
-    
+
     var html = '';
     var n = 0;
+    var totalWords = 0;
+
     for (var name in chars) {
-        html += '<div class="pj-tag"><div class="pj-dot" style="background:' + chars[name].c + '"></div><label for="c-' + n + '">' + name + '</label><input type="color" id="c-' + n + '" value="' + chars[name].c + '" data-name="' + name + '"><span class="pj-count">' + chars[name].n + '</span></div>';
+        html += '<div class="character-tag"><div class="character-dot" style="background:' + chars[name].c + '"></div><label for="c-' + n + '">' + name + '</label><input type="color" id="c-' + n + '" value="' + chars[name].c + '" data-name="' + name + '"><span class="character-count">' + chars[name].n + '</span></div>';
         n++;
     }
-    
-    document.getElementById('pjs-list').innerHTML = html || '<div class="empty-msg">Sin personajes</div>';
+
+    document.getElementById('pjs-list').innerHTML = html || '<div class="empty-state">Sin personajes detectados</div>';
     document.getElementById('btn-start').disabled = n === 0;
-    
+
+    for (var k = 0; k < data.length; k++) {
+        totalWords += data[k].v.split(/\s+/).length;
+    }
+
+    document.getElementById('stat-lines').textContent = data.length;
+    document.getElementById('stat-chars').textContent = n;
+    document.getElementById('stat-words').textContent = totalWords;
+    document.getElementById('stat-time').textContent = Math.ceil(totalWords / 130);
+
     var inputs = document.querySelectorAll('input[type="color"]');
     for (var j = 0; j < inputs.length; j++) {
         inputs[j].onchange = function() {
@@ -550,18 +948,18 @@ function render() {
     var html = '';
     for (var i = 0; i < data.length; i++) {
         var d = data[i];
-        var cls = 'line', style = '', txt = '', hidden = '', dataAttr = 'data-idx="' + i + '"';
-        
+        var cls = 'tp-line', style = '', txt = '', hidden = '', dataAttr = 'data-idx="' + i + '"';
+
         if (d.t === 's') {
             cls += ' scene';
             txt = d.v;
             dataAttr += ' data-type="scene"';
         } else if (d.t === 'c') {
             if (filter !== 'todos' && d.n !== filter) hidden = ' hidden';
-            cls += ' char' + hidden;
-            style = 'color:' + (chars[d.n] ? chars[d.n].c : '#6b9fff');
-            txt = d.n + '<br><span style="font-weight:400;text-transform:none;color:#bbb;">' + d.v + '</span>';
-            dataAttr += ' data-type="char" data-name="' + d.n + '"';
+            cls += ' character' + hidden;
+            style = 'color:' + (chars[d.n] ? chars[d.n].c : '#6366f1');
+            txt = d.n + '<br><span style="font-weight:400;text-transform:none;color:var(--text-secondary);font-size:0.9em;">' + d.v + '</span>';
+            dataAttr += ' data-type="character" data-name="' + d.n + '"';
         } else {
             if (filter !== 'todos') {
                 for (var j = i - 1; j >= 0; j--) {
@@ -570,34 +968,31 @@ function render() {
                     if (data[j].t === 'c') break;
                 }
             }
-            cls += ' dialog' + hidden;
+            cls += ' dialogue' + hidden;
             for (var j = i - 1; j >= 0; j--) {
                 if (data[j].t === 'c') {
-                    style = 'color:' + (chars[data[j].n] ? chars[data[j].n].c : '#bbb');
-                    dataAttr += ' data-type="dialog" data-name="' + data[j].n + '"';
+                    style = 'color:' + (chars[data[j].n] ? chars[data[j].n].c : '#a1a1aa');
+                    dataAttr += ' data-type="dialogue" data-name="' + data[j].n + '"';
                     break;
                 }
             }
-            if (!style) style = 'color:#bbb';
+            if (!style) style = 'color:var(--text-secondary)';
             txt = d.v;
         }
-        
+
         html += '<div class="' + cls + '" ' + dataAttr + ' style="' + style + '">' + txt + '</div>';
     }
     document.getElementById('tp-text').innerHTML = html;
     document.getElementById('tp-text').scrollTop = 0;
     document.getElementById('tp-text').style.fontSize = fontSize + 'px';
-    
-    // Click en cada línea para pausar
-    var lineas = document.querySelectorAll('#tp-text .line');
+
+    var lineas = document.querySelectorAll('#tp-text .tp-line');
     for (var k = 0; k < lineas.length; k++) {
         lineas[k].addEventListener('click', function(e) {
             e.stopPropagation();
             paused = true;
             document.getElementById('btn-play').innerHTML = '&#9654;';
-            
-            // Resaltar línea seleccionada
-            var prev = document.querySelector('#tp-text .line.selected');
+            var prev = document.querySelector('#tp-text .tp-line.selected');
             if (prev) prev.classList.remove('selected');
             this.classList.add('selected');
         });
@@ -605,9 +1000,9 @@ function render() {
 }
 
 function start() {
-    document.getElementById('editor').style.display = 'none';
+    document.getElementById('sidebar').style.display = 'none';
     document.getElementById('tp').classList.add('active');
-    
+
     var sel = document.getElementById('sel-pj');
     sel.innerHTML = '<option value="todos">Ver todos</option>';
     for (var n in chars) {
@@ -616,36 +1011,54 @@ function start() {
     sel.value = 'todos';
     filter = 'todos';
     paused = true;
+    startTime = 0;
     document.getElementById('btn-play').innerHTML = '&#9654;';
+    document.getElementById('tp-timer').textContent = '00:00';
     render();
-    msg('Presiona play');
+    showToast('Presiona play o Espacio para comenzar');
 }
 
 function back() {
     paused = true;
     if (anim) cancelAnimationFrame(anim);
+    if (timerInterval) clearInterval(timerInterval);
     document.getElementById('tp').classList.remove('active');
-    document.getElementById('editor').style.display = '';
+    document.getElementById('sidebar').style.display = '';
 }
 
-function msg(t) {
+function showToast(t) {
     var el = document.getElementById('tp-msg');
     el.textContent = t;
     el.classList.add('show');
     clearTimeout(window._mt);
-    window._mt = setTimeout(function() { el.classList.remove('show'); }, 1500);
+    window._mt = setTimeout(function() { el.classList.remove('show'); }, 2000);
 }
 
 function togglePlay() {
     paused = !paused;
     document.getElementById('btn-play').innerHTML = paused ? '&#9654;' : '&#9646;&#9646;';
-    if (!paused) animate();
+    if (!paused) {
+        if (startTime === 0) {
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 500);
+        }
+        animateScroll();
+    }
 }
 
-function animate() {
+function animateScroll() {
     if (paused) return;
     document.getElementById('tp-text').scrollTop += speed * 0.5;
-    anim = requestAnimationFrame(animate);
+    anim = requestAnimationFrame(animateScroll);
+}
+
+function updateTimer() {
+    if (paused || startTime === 0) return;
+    var diff = Date.now() - startTime;
+    var seg = Math.floor(diff / 1000);
+    var min = Math.floor(seg / 60);
+    seg = seg % 60;
+    document.getElementById('tp-timer').textContent = (min < 10 ? '0' : '') + min + ':' + (seg < 10 ? '0' : '') + seg;
 }
 
 function setSpeed(v) {
@@ -661,51 +1074,59 @@ function setSize(v) {
     document.getElementById('tp-text').style.fontSize = fontSize + 'px';
 }
 
-document.getElementById('guion').oninput = update;
-
-// Buscador en editor
-document.getElementById('search-editor-btn').onclick = function() {
-    buscarEnEditor();
-};
-
-document.getElementById('search-editor').onkeydown = function(e) {
-    if (e.code === 'Enter') {
-        e.preventDefault();
-        buscarEnEditor();
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
     }
-};
+}
+
+function loadExample() {
+    document.getElementById('guion').value =
+        'ESCENA 1: EL PRECIO DE LA ARENA\n\n' +
+        'CLAUDIO: El de Batavia es un habil luchador, Marcelo. No creo haber visto jamas un gladiador mejor que este.\n' +
+        'MARCELO: Verdaderamente lo es, mi querido CLAUDIO ambos son superiores a lo comun.\n' +
+        'CLAUDIO: Pero ahi adentro tienen a uno mejor que todos ellos: El gran gladiador Macer.\n' +
+        'PUEBLO: ¡Macer! ¡Macer! ¡Macer!\n\n' +
+        'PUEBLO: ¡Que muera! ¡Que muera! ¡Que muera! EMPERADOR DECIO: Cumple la sentencia!\n' +
+        'PUEBLO: ¡No! ¡Matalo! ¡Obedece al Cesar! CLAUDIO: ¿Que significa esto?\n' +
+        'EMPERADOR DECIO: Que insolencia es esta, Macer? Te di la gloria. Te di el favor del Imperio.\n' +
+        'MACER: Emperador Decio... Puedo enfrentar a las fieras y entregar mi propia vida si Roma lo exige.\n' +
+        'CLAUDIO: ¡Insensato! ¡Tu Dios no tiene autoridad en el Coliseo!\n' +
+        'EMPERADOR DECIO: Si tu espada no sirve a Roma, tu cuerpo servira para su entretenimiento. ¡Guardias!\n' +
+        'MACER: Senor Jesus, recibe mi espiritu y permite que mi vida anuncie tu verdad.\n' +
+        'CLAUDIO: Ven. Estos no merecen ni un pensamiento mas.';
+    update();
+    showToast('Ejemplo cargado');
+}
 
 function buscarEnEditor() {
     var textarea = document.getElementById('guion');
     var busqueda = document.getElementById('search-editor').value;
     var countEl = document.getElementById('search-editor-count');
-    
+
     if (!busqueda || busqueda.length < 2) {
         countEl.textContent = '';
         return;
     }
-    
+
     var texto = textarea.value;
     var inicio = textarea.selectionEnd;
     var idx = texto.indexOf(busqueda, inicio);
-    
-    // Si no encuentra desde la posición actual, buscar desde el inicio
+
     if (idx === -1) {
         idx = texto.indexOf(busqueda, 0);
     }
-    
+
     if (idx !== -1) {
         textarea.focus();
         textarea.setSelectionRange(idx, idx + busqueda.length);
-        
-        // Calcular en qué línea está y hacer scroll
         var lineas = texto.substring(0, idx).split('\n');
         var numLinea = lineas.length;
-        var lineHeight = 20; // aproximate line height in px
-        var scrollTarget = (numLinea - 5) * lineHeight;
+        var scrollTarget = (numLinea - 5) * 20;
         textarea.scrollTop = scrollTarget;
-        
-        // Contar total de coincidencias
+
         var total = 0;
         var pos = 0;
         while ((pos = texto.indexOf(busqueda, pos)) !== -1) {
@@ -717,43 +1138,45 @@ function buscarEnEditor() {
         countEl.textContent = 'Sin resultados';
     }
 }
-document.getElementById('vel').oninput = function() { setSpeed(+this.value); };
-document.getElementById('size').oninput = function() { setSize(+this.value); };
-document.getElementById('btn-copy').onclick = function() {
+
+// Events
+document.getElementById('guion').addEventListener('input', update);
+document.getElementById('vel').addEventListener('input', function() { setSpeed(+this.value); });
+document.getElementById('size').addEventListener('input', function() { setSize(+this.value); });
+document.getElementById('btn-start').addEventListener('click', start);
+document.getElementById('btn-back').addEventListener('click', back);
+document.getElementById('btn-play').addEventListener('click', togglePlay);
+document.getElementById('btn-fullscreen').addEventListener('click', toggleFullscreen);
+document.getElementById('btn-example').addEventListener('click', loadExample);
+
+document.getElementById('btn-copy').addEventListener('click', function() {
     var textarea = document.getElementById('guion');
     if (!textarea.value.trim()) return;
     navigator.clipboard.writeText(textarea.value).then(function() {
         var btn = document.getElementById('btn-copy');
-        btn.textContent = '¡Copiado!';
-        setTimeout(function() { btn.textContent = 'Copiar'; }, 1500);
+        var original = btn.innerHTML;
+        btn.innerHTML = '&#10003; Copiado';
+        setTimeout(function() { btn.innerHTML = original; }, 1500);
     });
-};
-document.getElementById('btn-start').onclick = start;
-document.getElementById('btn-back').onclick = back;
-document.getElementById('btn-play').onclick = togglePlay;
-document.getElementById('btn-slower').onclick = function() { setSpeed(speed - 1); msg('Vel: ' + speed); };
-document.getElementById('btn-faster').onclick = function() { setSpeed(speed + 1); msg('Vel: ' + speed); };
-document.getElementById('btn-smaller').onclick = function() { setSize(fontSize - 2); msg('Letra: ' + fontSize); };
-document.getElementById('btn-bigger').onclick = function() { setSize(fontSize + 2); msg('Letra: ' + fontSize); };
-document.getElementById('sel-pj').onchange = function() { filter = this.value; render(); };
-document.getElementById('tp-text').onclick = togglePlay;
+});
 
-// Pantalla completa
-document.getElementById('btn-fullscreen').onclick = toggleFullscreen;
+document.getElementById('btn-slower').addEventListener('click', function() { setSpeed(speed - 1); showToast('Velocidad: ' + speed); });
+document.getElementById('btn-faster').addEventListener('click', function() { setSpeed(speed + 1); showToast('Velocidad: ' + speed); });
+document.getElementById('btn-smaller').addEventListener('click', function() { setSize(fontSize - 2); showToast('Tamano: ' + fontSize); });
+document.getElementById('btn-bigger').addEventListener('click', function() { setSize(fontSize + 2); showToast('Tamano: ' + fontSize); });
+document.getElementById('sel-pj').addEventListener('change', function() { filter = this.value; render(); });
+document.getElementById('tp-text').addEventListener('click', togglePlay);
 
-function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-    } else {
-        document.exitFullscreen();
-    }
-}
+document.getElementById('search-editor-btn').addEventListener('click', buscarEnEditor);
+document.getElementById('search-editor').addEventListener('keydown', function(e) {
+    if (e.code === 'Enter') { e.preventDefault(); buscarEnEditor(); }
+});
 
 document.onkeydown = function(e) {
     if (!document.getElementById('tp').classList.contains('active')) return;
     if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
-    if (e.code === 'ArrowUp' || e.code === 'ArrowRight') { e.preventDefault(); setSpeed(speed + 1); msg('Vel: ' + speed); }
-    if (e.code === 'ArrowDown' || e.code === 'ArrowLeft') { e.preventDefault(); setSpeed(speed - 1); msg('Vel: ' + speed); }
+    if (e.code === 'ArrowUp' || e.code === 'ArrowRight') { e.preventDefault(); setSpeed(speed + 1); showToast('Velocidad: ' + speed); }
+    if (e.code === 'ArrowDown' || e.code === 'ArrowLeft') { e.preventDefault(); setSpeed(speed - 1); showToast('Velocidad: ' + speed); }
     if (e.code === 'KeyF') { e.preventDefault(); toggleFullscreen(); }
     if (e.code === 'Escape') {
         if (document.fullscreenElement) {
